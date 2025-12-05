@@ -1,31 +1,38 @@
 from cmu_graphics import *
 import random
-import time
+import subprocess
+import sys
+
 #databas
 app.background = fill="gray"
 fraglista = ["Vilket år tillverkades sista v70 modellen",
             "Vilket land kommer Volvo ifrån?",
             "Vilken typ av bil är en Volvo XC90?",
-            "Vilken Volvo-modell är en elbil: EX40 eller V70?",
+            "Vilken Volvo-modell är endast en elbil?",
+            "Vad är smeknamnet på Volvo ÖV 4",
+            "Vilket fordon av dessa tillverkar inte Volvo",
+            "När grundades Volvo?"
             ]
 # Fyra olika alternativ per fråga (ett korrekt, tre fel)
-alternativ1 = ["2016", "Sverige", "SUV", "EX40"]
-alternativ2 = ["2015", "Tyskland", "Sedan", "V70"]
-alternativ3 = ["2017", "USA", "Kombi", "XC60"]
-alternativ4 = ["2018", "Japan", "Sportbil", "XC40"]
+alternativ1 = ["2016", "Sverige", "SUV", "EX40","Jakob","Motorcykel","1927"]
+alternativ2 = ["2015", "Tyskland", "Sedan", "V70","Erik","Lastmaskin","1932"]
+alternativ3 = ["2017", "USA", "Kombi", "XC60","Hans","Grävmaskin","1937"]
+alternativ4 = ["2018", "Japan", "Sportbil", "XC40","Jokke","Dumper","1924"]
+
 
 
 fraglista2 = [
-   "Vilken typ av motor har de flesta nya Volvobilar?",
-   "Vilken typ av motor finns i Volvo XC90 T8?",
+   "Vad är det vanligaste motorblock matrialet i nya motorer",
    "Hur många cylindrar har en vanlig Volvo-motor?",
    "Hur många cylindrar har en volvo 850",
-   "Vilken typ av bränsle använder Volvo D3?"
+   "Vilken typ av bränsle använder Volvo D3?",
+    "Vilken volvo har den starkaste motorn?",
+    "Hur stark var första kommerciella Volvo motorn"
 ]
-alternativ12 = ["hybrid", "hybrid", "4", "5", "diesel"]
-alternativ22 = ["bensin", "diesel", "3", "4", "bensin"]
-alternativ32 = ["diesel", "el", "5", "6", "etanol"]
-alternativ42 = ["el", "bensin-el", "6", "8", "gas"]
+alternativ12 = ["aluminium", "4", "5", "diesel","ES90","40–51Hk"]
+alternativ22 = ["gjutjärn", "3", "4", "bensin","V90","30-37hk"]
+alternativ32 = ["vismut", "5", "6", "etanol","XC60","45-58hk"]
+alternativ42 = ["järn", "6", "8", "gas","EX30","54-60hk"]
 
 
 clicked = False
@@ -33,10 +40,10 @@ aktuellfraga = ""
 aktuellsvar = ""
 svarfraga = ""
 poang = 0
-katergori = ""
+kategori = 0
 
 darkOrange = Rect(10,300,130,80,fill="darkOrange",visible=False)
-orange = Rect(260,300,130,80,fill="orange",visible=False)
+orange = Rect(260,300,130,80,fill="green",visible=False)
 blue = Rect(10,200,130,80,fill="blue")
 red = Rect(260,200,130,80,fill="red")
 Fraga = Label("",200,100,size=15)
@@ -53,9 +60,9 @@ timer = Rect(150,50,100,10,fill="gray")
 #spawnafrågor
 
 def spawn():
-    global poang, aktuellsvar
+    global poang, aktuellsvar, clicked
     if len(fraglista) > 0:
-        index = random.randint(0, len(fraglista2) - 1)
+        index = random.randint(0, len(fraglista)- 1)
         aktuellfraga = fraglista.pop(index)
         aktuellsvar = alternativ1.pop(index)
         svar1.value = aktuellsvar
@@ -74,9 +81,11 @@ def spawn():
         svar4.centerX, svar4.centerY = positions[3]
     else:
         Fraga.value = "Dina poäng = " + str(poang)
+        clicked = "retry?"
+        valj()
 #katergori motorfrågor
 def spawn2():
-    global poang, aktuellsvar
+    global poang, aktuellsvar, clicked
     if len(fraglista2) > 0:
         index = random.randint(0, len(fraglista2) - 1)
         aktuellfraga = fraglista2.pop(index)
@@ -97,18 +106,41 @@ def spawn2():
         svar4.centerX, svar4.centerY = positions[3]
     else:
         Fraga.value = "Dina poäng = " + str(poang)
+        clicked = "retry?"
+        valj()
 
+#välj funtion
+def valj():
+    if clicked == "retry?":
+        volvoLabel.visible = True
+        motorLabel.visible = False
+        svar1.visible = False
+        svar2.visible = False
+        svar3.visible = False
+        svar4.visible = False
+        volvoLabel.value = "Byt kategori"
+        motorLabel.value = "Svårare frågor"
+        orange.visible = False
+        darkOrange.visible = False
+        Fraga.value = "välj"
+    else:
+        pass
+
+#restartfunktion
+def restart():
+    subprocess.Popen([sys.executable] + sys.argv)
+    sys.exit()
 
 #svarafrågor
 
 def onMousePress(mouseX, mouseY):
     global kategori, clicked, aktuellfraga, aktuellsvar, poang
 
-    if clicked != True:
+    if clicked == False:
         # Blå ruta (kategori = -1)
         if 10 < mouseX < 140 and 200 < mouseY < 280:
             clicked = True
-            katergori = "V"
+            kategori = 1
             Kategori.visible = False
             volvoLabel.visible = False
             motorLabel.visible = False
@@ -119,7 +151,7 @@ def onMousePress(mouseX, mouseY):
         # Röda ruta (kategori = 1)
         elif 260 < mouseX < 390 and 200 < mouseY < 280:
             clicked = True
-            katergori = "M"
+            kategori = -1
             Kategori.visible = False
             volvoLabel.visible = False
             motorLabel.visible = False
@@ -128,7 +160,7 @@ def onMousePress(mouseX, mouseY):
             spawn2()
 
 
-    elif Fraga.value not in ("Rätt","Fel"):
+    elif Fraga.value not in ("Rätt","Fel","välj"):
         # blå
         if 10 < mouseX < 140 and 200 < mouseY < 280:
             if svar1.centerX == 70 and svar1.centerY == 240:
@@ -160,10 +192,24 @@ def onMousePress(mouseX, mouseY):
                 poang += 1
             else:
                 Fraga.value = "Fel" + ", rätt svar: " + aktuellsvar
-
             pass
+    if clicked == "retry?":
+
+        #blå
+        if 10 < mouseX < 140 and 200 < mouseY < 280:
+            if svar1.centerX == 70 and svar1.centerY == 240:
+                restart()
+
+        # röd
+        elif 260 < mouseX < 390 and 200 < mouseY < 280:
+            if svar1.centerX == 330 and svar1.centerY == 240:
+                Fraga.value = "Rätt"
+                poang += 1
+
+        pass
 
 def onStep():
+    global kategori
     if Fraga.value in ("Rätt","Fel" + ", rätt svar: " + aktuellsvar):
         timer.fill = "blue"
         if timer.width > 2:
@@ -172,12 +218,12 @@ def onStep():
         if timer.width == 2:
             timer.visible = False
             timer.width = 100
-            if katergori == "V":
+            if kategori == 1:
                 spawn()
             else:
                 spawn2()
+
     pass
 
 
 cmu_graphics.run()
-
