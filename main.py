@@ -82,7 +82,6 @@ def spawn():
     else:
         Fraga.value = "Dina poäng = " + str(poang)
         clicked = "retry?"
-        valj()
 #katergori motorfrågor
 def spawn2():
     global poang, aktuellsvar, clicked
@@ -107,29 +106,7 @@ def spawn2():
     else:
         Fraga.value = "Dina poäng = " + str(poang)
         clicked = "retry?"
-        valj()
 
-#välj funtion
-def valj():
-    if clicked == "retry?":
-        volvoLabel.visible = True
-        motorLabel.visible = False
-        svar1.visible = False
-        svar2.visible = False
-        svar3.visible = False
-        svar4.visible = False
-        volvoLabel.value = "Byt kategori"
-        motorLabel.value = "Svårare frågor"
-        orange.visible = False
-        darkOrange.visible = False
-        Fraga.value = "välj"
-    else:
-        pass
-
-#restartfunktion
-def restart():
-    subprocess.Popen([sys.executable] + sys.argv)
-    sys.exit()
 
 #svarafrågor
 
@@ -160,7 +137,7 @@ def onMousePress(mouseX, mouseY):
             spawn2()
 
 
-    elif Fraga.value not in ("Rätt","Fel","välj"):
+    elif Fraga.value not in ("Rätt","Fel"):
         # blå
         if 10 < mouseX < 140 and 200 < mouseY < 280:
             if svar1.centerX == 70 and svar1.centerY == 240:
